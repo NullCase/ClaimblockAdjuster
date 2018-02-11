@@ -1,0 +1,20 @@
+name: ClaimblockAdjuster
+version: ${project.version}
+website: http://robomwm.com
+author: RoboMWM
+main: com.robomwm.claimblockadjuster.ClaimblockAdjuster
+depend:
+- Vault
+commands:
+  claimblockadjuster:
+    usage: /claimblockadjuster <multiplier> <monetary value of a single block>
+    aliases: [cba]
+    permission: claimblockadjuster.adjust
+permissions:
+    claimblockadjuster.*:
+        description: Grants ALL THE THINGS
+        children:
+            claimblockadjuster.adjust: true
+    claimblockadjuster.adjust:
+        description: Permission to /claimblockadjuster.
+        default: op
