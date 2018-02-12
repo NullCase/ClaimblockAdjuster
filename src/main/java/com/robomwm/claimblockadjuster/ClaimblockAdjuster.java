@@ -96,7 +96,7 @@ public class ClaimblockAdjuster extends JavaPlugin
 
     private synchronized PsuedoPlayerData getAndBackupTotalBlocks(UUID playerID)
     {
-        File playerFile = new File("plugins" + File.separator + "GriefPreventionData" + File.separator + playerID.toString());
+        File playerFile = new File("plugins" + File.separator + "GriefPreventionData" + File.separator + "PlayerData" + File.separator + playerID.toString());
 
         if (!playerFile.exists())
         {
@@ -104,7 +104,7 @@ public class ClaimblockAdjuster extends JavaPlugin
             return null;
         }
 
-        File backupFile = new File("plugins" + File.separator + "GriefPreventionData" + File.separator + "_backup" + playerID.toString());
+        File backupFile = new File("plugins" + File.separator + "GriefPreventionData" + File.separator + "PlayerData" + File.separator + "_backup" + playerID.toString());
 
         if (backupFile.exists())
         {
@@ -213,7 +213,7 @@ public class ClaimblockAdjuster extends JavaPlugin
             fileContent.append("\n");
 
             //write data to file
-            File playerFile = new File("plugins" + File.separator + "GriefPreventionData" + File.separator + playerID.toString());
+            File playerFile = new File("plugins" + File.separator + "GriefPreventionData" + File.separator + "PlayerData" + File.separator + playerID.toString());
             Files.write(fileContent.toString().getBytes("UTF-8"), playerFile);
         }
 
