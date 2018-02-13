@@ -2,6 +2,7 @@ package com.robomwm.claimblockadjuster;
 
 import com.google.common.io.Files;
 import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -10,9 +11,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.nio.charset.Charset;
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
@@ -25,10 +25,6 @@ import java.util.UUID;
 public class ClaimblockAdjuster extends JavaPlugin
 {
     private Economy economy;
-    public void onEnable()
-    {
-
-    }
 
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
     {
@@ -49,6 +45,7 @@ public class ClaimblockAdjuster extends JavaPlugin
 
     private void adjustPlayers(double multiplier, double moneyValue)
     {
+        Calendar date = Calendar.getInstance();
         int i = 0;
         for (OfflinePlayer player : getServer().getOfflinePlayers())
         {
@@ -57,7 +54,7 @@ public class ClaimblockAdjuster extends JavaPlugin
                 @Override
                 public void run()
                 {
-                    PsuedoPlayerData psuedoPlayerData = getAndBackupTotalBlocks(player.getUniqueId());
+                    PsuedoPlayerData psuedoPlayerData = getAndBackupTotalBlocks(player.getUniqueId(), date);
                     if (psuedoPlayerData == null)
                     {
                         getLogger().severe("Skipping " + player.getUniqueId() + "(" + player.getName() + ")");
@@ -72,8 +69,14 @@ public class ClaimblockAdjuster extends JavaPlugin
                     getLogger().info("Calculations for " + player.getUniqueId().toString() + "(" + player.getName() + "): "
                             + "Previous: " + psuedoPlayerData.getAccruedBlocks() + "," + psuedoPlayerData.getBonusBlocks()
                             + " Now: " + accrued + "," + bonus + " remainder: " + remainder + " money: " + money);
+                    EconomyResponse economyResponse = getEconomy().depositPlayer(player, money);
+                    if (!economyResponse.transactionSuccess())
+                    {
+                        getLogger().severe("Unable to deposit money for " + player.getUniqueId() + "(" + player.getName()
+                                + "). Error returned: " + economyResponse.errorMessage);
+                        return;
+                    }
                     savePlayerData(player.getUniqueId(), (int)accrued, (int)bonus);
-                    getEconomy().depositPlayer(player, money);
                 }
             }.runTaskLater(this, i++);
         }
@@ -94,7 +97,12 @@ public class ClaimblockAdjuster extends JavaPlugin
         return economy;
     }
 
-    private synchronized PsuedoPlayerData getAndBackupTotalBlocks(UUID playerID)
+    private String getTimestamp(Calendar date)
+    {
+        return Integer.toString(date.get(Calendar.YEAR)) + "-" + date.get(Calendar.MONTH) + "-" + date.get(Calendar.DAY_OF_MONTH) + "-" + date.get(Calendar.HOUR) + "_" + date.get(Calendar.MINUTE) + "_" + date.get(Calendar.SECOND);
+    }
+
+    private synchronized PsuedoPlayerData getAndBackupTotalBlocks(UUID playerID, Calendar date)
     {
         File playerFile = new File("plugins" + File.separator + "GriefPreventionData" + File.separator + "PlayerData" + File.separator + playerID.toString());
 
@@ -104,13 +112,15 @@ public class ClaimblockAdjuster extends JavaPlugin
             return null;
         }
 
-        File backupFile = new File("plugins" + File.separator + "GriefPreventionData" + File.separator + "PlayerData" + File.separator + "_backup" + playerID.toString());
+        File backupFile = new File("plugins" + File.separator + "GriefPreventionData" + File.separator + "PlayerData" + File.separator + "backup_" + getTimestamp(date) + File.separator + playerID.toString());
 
         if (backupFile.exists())
         {
             this.getLogger().severe("There's already a backup of " + playerID.toString());
             return null;
         }
+
+        backupFile.getParentFile().mkdirs();
 
         try
         {
