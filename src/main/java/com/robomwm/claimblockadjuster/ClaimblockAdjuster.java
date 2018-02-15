@@ -69,7 +69,11 @@ public class ClaimblockAdjuster extends JavaPlugin
                     getLogger().info("Calculations for " + player.getUniqueId().toString() + "(" + player.getName() + "): "
                             + "Previous: " + psuedoPlayerData.getAccruedBlocks() + "," + psuedoPlayerData.getBonusBlocks()
                             + " Now: " + accrued + "," + bonus + " remainder: " + remainder + " money: " + money);
-                    EconomyResponse economyResponse = getEconomy().depositPlayer(player, money);
+                    EconomyResponse economyResponse;
+                    if (money > 0)
+                         economyResponse = getEconomy().depositPlayer(player, money);
+                    else
+                        economyResponse = getEconomy().withdrawPlayer(player, money);
                     if (!economyResponse.transactionSuccess())
                     {
                         getLogger().severe("Unable to deposit money for " + player.getUniqueId() + "(" + player.getName()
