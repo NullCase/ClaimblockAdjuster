@@ -32,7 +32,7 @@ public class ClaimblockAdjuster extends JavaPlugin
             return false;
         try
         {
-            adjustPlayers(Double.valueOf(args[0]), Double.valueOf(args[0]));
+            adjustPlayers(Double.valueOf(args[0]), Double.valueOf(args[1]));
             sender.sendMessage("See logs for details. Severe entries indicate issues with loading or saving a file.");
         }
         catch (Throwable rock)
