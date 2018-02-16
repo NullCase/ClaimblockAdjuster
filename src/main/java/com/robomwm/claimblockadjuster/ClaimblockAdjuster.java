@@ -73,7 +73,7 @@ public class ClaimblockAdjuster extends JavaPlugin
                     if (money > 0)
                          economyResponse = getEconomy().depositPlayer(player, money);
                     else
-                        economyResponse = getEconomy().withdrawPlayer(player, money);
+                        economyResponse = getEconomy().withdrawPlayer(player, Math.abs(money));
                     if (!economyResponse.transactionSuccess())
                     {
                         getLogger().severe("Unable to deposit money for " + player.getUniqueId() + "(" + player.getName()
